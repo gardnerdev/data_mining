@@ -38,6 +38,8 @@ The support says how common is a given rule in an analysed DB.
   ```
 
 #### Condfidence
+Confidence: The confidence shows how often a rule is found to be true, e.g. if x is bought, how often is y bought.
+
 The confidence indicates how strong the antecedent of a rule 
 determines occurrence of the consequente of a rule
 
@@ -53,6 +55,9 @@ If a person P bought smartphone then she/he bought also data packet (supp. 20%, 
 
 
 #### Lift
+Lift provides the information if a rule: "if x is bought, how often is y bought" is random or not.
+If Lift > 1, both occurances are dependent. Only for Lift greater 1 a potential useful rule can be found.
+
 Lift parameter shows how much the confidence of a rule 
 is greater than confidence calculated based on probability
 of occurrence of consequent of that rule in DB
