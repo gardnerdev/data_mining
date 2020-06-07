@@ -8,6 +8,8 @@
 #setwd("path")
 #getwd()
 #library loading
+install.packages("arules")
+install.packages("arulesViz")
 library(arules) # association rules
 library(arulesViz) # visualization of reles
 
@@ -44,12 +46,17 @@ AdultUCI["education-num"] <-NULL
 
 AdultUCI[[ "age"]] <- ordered(cut(AdultUCI[[ "age"]], c(15,25,45,65,100)), labels = c("Young", "Middle-aged", "Senior", "Old"))
 
+head(AdultUCI,10)
+
 AdultUCI[[ "hours-per-week"]] <- ordered(cut(AdultUCI[[ "hours-per-week"]],c(0,25,40,60,168)),
                                          labels = c("Part-time", "Full-time", "Over-time", "Workaholic"))
 
+head(AdultUCI,10)
 AdultUCI[[ "capital-gain"]] <- ordered(cut(AdultUCI[[ "capital-gain"]], c(-Inf,0,median(AdultUCI[[ "capital-gain"]][AdultUCI[[ "capital-gain"]]>0]),Inf)),
                                        labels = c("None", "Low", "High"))
 
+
+head(AdultUCI,10)
 AdultUCI[[ "capital-loss"]] <- ordered(cut(AdultUCI[[ "capital-loss"]],
                                            c(-Inf,0, median(AdultUCI[[ "capital-loss"]][AdultUCI[[ "capital-loss"]]>0]),Inf)),
                                        labels = c("none", "low", "high"))
@@ -98,6 +105,7 @@ aParam@support <- 0.3
 aParam@confidence <-0.8
 aParam@target ="frequent itemsets"
 str(aParam)
+print(aParam)
 ?apriori
 #frequent itemsets discovery - Apriori algorithm
 asets <-apriori(adultTR,aParam)
@@ -112,7 +120,7 @@ str(asets)
 
 inspect(asets[size(asets)>5])
 #charts
-#plot(asets[1:10])
+plot(asets[1:10])
 plot(asets[size(asets)>5], method = "graph")
 plot(asets[size(asets)>4], method = "paracoord", control = list(reorder = TRUE))
 
@@ -213,12 +221,10 @@ plot(rulesLift1.2, method="matrix", measure="lift", interactive = TRUE)
 rulesInGivenConseq <- subset(aRules, subset = rhs %in% "relationship=Husband" & lift >=2.3)
 inspect(rulesInGivenConseq)
 plot(rulesInGivenConseq, method = "graph", engine = "htmlwidget")
-
 #rules based on maximal frequent itemsets
 maxRul <- aRules[is.maximal(aRules) == TRUE]
 summary(maxRul)
 inspect(maxRul[1:10])
-
 #removing reduntant rules (rules with the same consequent and confidence but with less items in the antecedent
 notRedun <- aRules[is.redundant(aRules) == FALSE]
 summary(notRedun)
