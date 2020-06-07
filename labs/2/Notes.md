@@ -66,3 +66,14 @@ Lift(A=>B) = confidence of a rule(A=>B) / relative support(B)
             antecedent and the consequent of a rule (presence
             of the antecedent of a rule does not influence 
             occurence of the consequent of a rule)
+
+#### Association rules discovery with R
+Package **arules** - an environment for association rules discovery 
+* offers funcionality for discovering association rules only with
+  one item in consequent
+* requires data in transactional form i.e transactions are defined
+  by a set of binary properties (attributes). If a given property
+  occurs in a transaction we have value 1 for that property, otherwise
+  we have value 0
+* package **arulesViz** - visualization of frequent itemsets and association
+  rules /various versions of plot function
