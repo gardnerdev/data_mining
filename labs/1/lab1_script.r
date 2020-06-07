@@ -1,8 +1,8 @@
 ﻿#EDAMI 2020l Lab1
 #autor: Grzegorz Protaziuk, Robert Bembenik
 library(arules)
-setwd("/home/users/chojnar1/Desktop/STUD/EDAMI/Labs");
-getwd()
+#setwd("/home/users/chojnar1/Desktop/STUD/data_mining/labs/1")
+#getwd()
 
 
 #####################################
