@@ -32,3 +32,16 @@ The support says how common is a given rule in an analysed DB.
   relative support of a rule (A=>B) = absolute support(A=>B) / number of trans. in DB
   ```
 
+#### Condfidence
+The confidence indicates how strong the antecedent of a rule 
+determines occurrence of the consequente of a rule
+
+The confidence of a rule shows probability of occurence 
+of the consequent of a rule in a transaction providing 
+that the antecedent of that rule is present in the considered 
+transaction
+```
+confidence of a rule (A=>B) = support(AuB) / support(A)
+```
+Example
+If a person P bought smartphone then she/he bought also data packet (supp. 20%, con. 80%)
