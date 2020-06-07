@@ -45,3 +45,24 @@ confidence of a rule (A=>B) = support(AuB) / support(A)
 ```
 Example
 If a person P bought smartphone then she/he bought also data packet (supp. 20%, con. 80%)
+
+
+#### Lift
+Lift parameter shows how much the confidence of a rule 
+is greater than confidence calculated based on probability
+of occurrence of consequent of that rule in DB
+```
+Lift(A=>B) = confidence of a rule(A=>B) / relative support(B)
+```
+* lift > 1 -shows that presence of the antecedent of a rule 
+            in a given transaction increases probability of 
+            occurrence of the consequent of a rule in that 
+            transaction
+* lift < 1 -shows that presence of the antecedent of a rule
+            in a given transaction decreases probability of
+            occurrence of a consequent of a rule in that 
+            transaction
+* lift = 1 -shows that there is a no relation between the 
+            antecedent and the consequent of a rule (presence
+            of the antecedent of a rule does not influence 
+            occurence of the consequent of a rule)
