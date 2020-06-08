@@ -145,12 +145,12 @@ Relarive support - a frequency of occurrence of a given rule in DB
 relative support of a rule (A=>B)=absolute support(A=>B)/number
 of sequences in DB
 ```
-##### Support, Confidence, Lift
+#### Support, Confidence, Lift
 Interpretation of support, confidence and lift parameters for 
 sequential rules is analogous to interpretation of these para-
 meters for association rules
 
-##### Sequential rules discovery with R
+#### Sequential rules discovery with R
 Package arulesSequences - selected methods:
 * read_baskets - read data with sequences
 * itemFrequency - calculation of frequency of occurrence of items
