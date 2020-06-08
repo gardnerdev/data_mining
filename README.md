@@ -95,3 +95,68 @@ Package **arulesViz** - visualization of frequent itemsets and association
 * inspect - showing frequent itemsets and association rules
 * subset - selection of association rules meeting a user's requirements
   
+
+## Sequential rules 
+### Basic notions 
+* Transaction - a finite subset of items belonging
+                to a certain domain with a time stamp
+* Sequence - an ordered set of transactions concerning one  object
+* Data base (BD) - a set of sequences
+* Event - occurence of a set of items in some transaction
+  
+### Sequential rules
+A sequential rules (SR) is an expressino in the following form:
+```
+A => B
+where A and B are sequences
+A - antecedent of a rule
+B - consequent of a rule
+```
+A sequential rule expresses certain time consecution of events
+
+### Parameters of sequential rules 
+Parameters of SR available in arulesSequences package
+* Support 
+* Confidence
+* Lift
+Parameters of SR available in arulesSequences package
+* maxsize - the maximal number of items of an element of       sequence, default 10
+* maxlen - the maximal number of elements of a sequence,
+default 10
+* mingap - the minimum time difference between consecutive
+elements of a sequence, default none 
+* maxgap - the maximum time difference between consecutive
+elements of a sequence, default none 
+* maxwin - the maximum time difference between any elements
+of a sequence, default none 
+
+#### Support
+Support of a sequential rule is calculated as a number
+of sequences including that rule. Only the fact of occurrence
+of that rule in a given sequence is important, not a number 
+of occurrences.
+
+```
+absolute support of a rule (A=>B) - number of sequences in DB
+including A U B with a given time constrains
+```
+Relarive support - a frequency of occurrence of a given rule in DB
+```
+relative support of a rule (A=>B)=absolute support(A=>B)/number
+of sequences in DB
+```
+##### Support, Confidence, Lift
+Interpretation of support, confidence and lift parameters for 
+sequential rules is analogous to interpretation of these para-
+meters for association rules
+
+##### Sequential rules discovery with R
+Package arulesSequences - selected methods:
+* read_baskets - read data with sequences
+* itemFrequency - calculation of frequency of occurrence of items
+* ruleInduction - an sequential rules generation based on prior
+discovered sequences
+* cspade - frequent sequences discovery
+* inspect - showing sequences and rules
+* subset - selection of sequences or sequential rules meeting a user's requirements
+  
