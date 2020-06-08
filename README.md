@@ -151,6 +151,12 @@ sequential rules is analogous to interpretation of these para-
 meters for association rules
 
 #### Sequential rules discovery with R
+```
+A sequence: <(ef)(ab)(df)cb>
+an element may contain a set of items(also called events)
+Items within an element are unordered and we list them alphabetically
+<a(bc)dc>is a subsequence of <**a**(a**bc**)(ac)**d**(**c**f)>
+```
 Package arulesSequences - selected methods:
 * read_baskets - read data with sequences
 * itemFrequency - calculation of frequency of occurrence of items

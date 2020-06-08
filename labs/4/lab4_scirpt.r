@@ -138,6 +138,8 @@ download.file('http://staff.ii.pw.edu.pl/~gprotazi/dydaktyka/dane/diab_trans.dat
 #reading data - into dataframe
 diab.df <- read.csv("diab_trans.data", header=TRUE, stringsAsFactors = FALSE)
 View(diab.df)
+
+
 #example of saving data into a file  - removing the header line
 write.table(diab.df, "diab_trans2.data", sep = "," , row.names = FALSE, col.names = FALSE )
 
