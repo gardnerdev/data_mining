@@ -59,3 +59,18 @@ install.packages("/home/users/chojnar1/Desktop/STUD/MOW/Book/Packages/dmr.data_1
 data(weather, package="dmr.data")
 data(weatherc, package="dmr.data")
 data(weatherr, package="dmr.data")
+
+# mean calculation
+bs.mean <- function(v) {sum(v)/length(v)}
+
+# my variant
+bs.mean(weatherc$temperature)
+# typical approach
+mean(weatherc$temperature)
+
+
+bs.weighted.mean <- function(v, w=rep(1, length(v))) { sum(w*v)/sum(w) }
+# demonstration
+bs.weighted.mean(weatherc$temperature, ifelse(weatherc$play=="yes",5,1))
+weighted.mean(weatherc$temperature, ifelse(weatherc$play=="yes",5,1))
+
