@@ -26,6 +26,9 @@ B - consequent of a rule
 #### Support
 The support says how common is a given rule in an analysed DB.
 
+supp(X) = Number of transactions in which X appears/Total number of transactions
+
+
 * Absolute support
   a number of transactions in DB in which a given rule is contained
   ```
@@ -165,4 +168,21 @@ discovered sequences
 * cspade - frequent sequences discovery
 * inspect - showing sequences and rules
 * subset - selection of sequences or sequential rules meeting a user's requirements
-  
+
+
+
+
+
+## Clustering
+The purpose of clustering is to divide a set of objects into
+groups including similar objects (objects having similar
+values of attributes)
+
+A good clustering must have the following property:
+* high similarity between objects within groups,
+* low similarity between objects belonging to different groups
+
+### Basic methods:
+* k-means algorithm
+* hierarchical clustering
+* density-based clustering
