@@ -1,4 +1,3 @@
-
 # Authors: Grzegorz Protaziuk, Robert Bembenik
 # Script EDAMI lab6
 # Clustering
