@@ -74,3 +74,39 @@ bs.weighted.mean <- function(v, w=rep(1, length(v))) { sum(w*v)/sum(w) }
 bs.weighted.mean(weatherc$temperature, ifelse(weatherc$play=="yes",5,1))
 weighted.mean(weatherc$temperature, ifelse(weatherc$play=="yes",5,1))
 
+
+# Median - notice that k1 and k2 are equal if m (the dataset size) is odd.
+bs.median <- function(v)
+{
+  k1 <- (m <- length(v))%/%2+1
+  k2 <- (m+1)%/%2
+  ((v <- sort(v))[k1]+v[k2])/2
+}
+
+# demonstration
+bs.median(weatherc$temperature)
+bs.median(weatherc$temperature[weatherc$play=="yes"])
+median(weatherc$temperature)
+median(weatherc$temperature[weatherc$play=="yes"])
+
+
+#The R code presented below implements and demonstrates weighted median calculation. 
+#Since there is no equivalent standard R function, the results are verified by applying 
+#the median function to appropriately resampled data, simulating the effect of weighting. 
+#The shift.right utility function is used to shift the cumulative weight sum to the right.
+
+weighted.median <- function(v, w=rep(1, length(v)))
+{
+  v <- v[ord <- order(v)]
+  w <- w[ord]
+  tw <- (sw <- cumsum(w))[length(sw)]
+  mean(v[which(sw>=0.5*tw & tw-shift.right(sw, 0)>=0.5*tw)])
+}
+
+  # demonstration
+weighted.median(weatherc$temperature, ifelse(weatherc$play=="yes", 5, 1))
+median(c(weatherc$temperature[weatherc$play=="no"],
+         rep(weatherc$temperature[weatherc$play=="yes"], 5)))
+weighted.median(weatherc$temperature, ifelse(weatherc$play=="yes", 0.2, 1))
+median(c(weatherc$temperature[weatherc$play=="yes"],
+         rep(weatherc$temperature[weatherc$play=="no"], 5)))
