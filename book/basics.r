@@ -90,6 +90,11 @@ median(weatherc$temperature)
 median(weatherc$temperature[weatherc$play=="yes"])
 
 
+#The rank of instance x with respect 
+#to attribute a on dataset S,
+#is the ordinal number of x
+#after sorting S nondecreasingly by a
+
 #The R code presented below implements and demonstrates weighted median calculation. 
 #Since there is no equivalent standard R function, the results are verified by applying 
 #the median function to appropriately resampled data, simulating the effect of weighting. 
@@ -110,3 +115,17 @@ median(c(weatherc$temperature[weatherc$play=="no"],
 weighted.median(weatherc$temperature, ifelse(weatherc$play=="yes", 0.2, 1))
 median(c(weatherc$temperature[weatherc$play=="yes"],
          rep(weatherc$temperature[weatherc$play=="no"], 5)))
+
+
+#Rank calculation is implemented and demonstrated by the following R code
+bs.rank <- function(v)
+{
+  r.min <- match(v, sort(v))
+  r.max <- length(v)+1-match(v, rev(sort(v)))
+  (r.min+r.max)/2
+}
+
+#demonstration
+print(weatherr$playability)
+bs.rank(weatherr$playability)
+rank(weatherr$playability)
