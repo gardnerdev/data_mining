@@ -129,3 +129,81 @@ bs.rank <- function(v)
 print(weatherr$playability)
 bs.rank(weatherr$playability)
 rank(weatherr$playability)
+
+#Order statistics can be though of as an inverse of ranks
+#The order statistic of attribute a is the attribute's value
+#for the instance that has rank k with respect to a under 
+#ordinal ranking
+
+#The R code presented below implements and demonstrates order statistic calculation
+ord <- function(v, k=1:length(v))
+{
+  sort(v)[k]
+}
+
+# demonstration
+ord(weatherr$playability, 11)
+weatherr$playability[rank(weatherr$playability, ties.method="first")==11]
+ord(weatherr$playability, 10:13)
+weatherr$playability[rank(weatherr$playability, ties.method="first") %in% 10:13]
+
+
+#Simplified reimplementation of the standard quantile 
+#function and demonstrates its usage
+
+bs.quantile <- function(v, p=c(0, 0.25, 0.5, 0.75, 1))
+{
+  b <- 1-p
+  k <- floor((ps <- p*length(v))+b)
+  beta <- ps+b-k
+  `names<-`((1-beta)*(v <- sort(v))[k]+beta*(ifelse(k<length(v), v[k+1], v[k])), p)
+}
+
+# demonstration
+bs.quantile(weatherc$temperature)
+quantile(weatherc$temperature)
+bs.quantile(weatherc$temperature[weatherc$play=="yes"])
+quantile(weatherc$temperature[weatherc$play=="yes"])
+
+
+bs.var <- function(v) { sum((v-mean(v))^2)/(length(v)-1) }
+
+  # demonstration
+bs.var(weatherr$playability)
+var(weatherr$playability)
+
+
+#Standard deviation calculation is implemented and demonstrated by the following R code
+bs.sd <- function(v) { sqrt(sum((v-mean(v))^2)/(length(v)-1)) }
+
+# demonstration
+bs.sd(weatherr$playability)
+sd(weatherr$playability)
+
+#calcvarcoef(weatherr$playability)ulatng and using the coefficient of variation
+varcoef <- function(v) { sqrt(sum((v-(m <- mean(v)))^2)/(length(v)-1))/m }
+varcoef(weatherr$playability)
+varcoef(-weatherr$playability)
+
+#single attribute value probability estimation
+prob <- function(v, v1) { sum(v==v1)/length(v) }
+  # demonstration
+prob(weather$outlook, "rainy")
+
+
+#full discrete probability distribution estimation for one or more attributes
+#This is usually more convenient than estimating probabilities for a
+#single value or value combination at a time
+pdisc <- function(v, ...) { (count <- table(v, ..., dnn=NULL))/sum(count) }
+# demonstration
+pdisc(weather$outlook)
+pdisc(weather$outlook, weather$temperature)
+
+
+
+
+
+
+
+
+
