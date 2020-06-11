@@ -31,8 +31,14 @@ A decision tree is built by recursive splitting input sets in nodes until:
 - the number of objects in an input set is small enough
  
 
-
-
+### Classification in R
+* caret - dedicated to creation of predictive models, contains tools for:
+  - data splitting
+  - pre-processing
+  - feature selection
+  - model tuning using resambling
+* rpart, C50, randomForest - functionality for building decision trees 
+  and random forest classifiers 
 
 
 
