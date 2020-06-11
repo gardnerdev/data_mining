@@ -1,21 +1,15 @@
-## Task 1 Sequential rules discovery
-Dataset
-* Description https://archive.ics.uci.edu/ml/datasets/diabetes
-* Data: http://staff.ii.pw.edu.pl/~gprotazi/dydaktyka/dane/diab_trans.data
+### Task:
+Determine the best grouping according to the
+evaluation method presented during the
+laboratory
 
-### Objective:
-To find out if occurrence of hypoglycemic symptoms may be predicted based on measurements of a
-level of blood glucose – to discover the best sequential rules.
-All records which do not refer to the blood glucose measurement or hypoglycemic symptoms should
-be discarded from the dataset. The values associated with the blood glucose measurement event
-should be discretized according to information available on
-https://en.wikipedia.org/wiki/Blood_sugar_level#Normal_values or
-https://www.medicinenet.com/normal_blood_sugar_levels_in_adults_with_diabetes/article.htm
+* http://archive.ics.uci.edu/ml/datasets/Cardiotocography –
 
-### A script should include:
-• the way of selection the best rules
-• data pre-processing, statistics and analysis
-• Information about carried out experiments (parameters of a method, exemplary of rules,
-evaluation of discovered rules).
-• Conclusions referring to obtained results.
-A way of carrying out experiments should show somehow the idea for looking for the best rules. 
+
+### Additional requirements - cardiotocography
+* In the analysis the fields: Class and NSP should not be taken into consideration
+* Maximum number of groups 15 (the reference grouping
+has 10 groups).
+* The reference grouping is defined by the Class attribute.
+* Minimum 10 tests are required.
+* The achieved result should be better than the result obtained by application k-means algorithm for 10 groups with default values of parameters and without preprocessing of data.
