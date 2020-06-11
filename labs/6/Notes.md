@@ -22,6 +22,17 @@ which gives for any object 'w' its class c.
 * when to stop partitioning?
 * how to predict the value of a class/category for each object in a partition?
 
+A decision tree is built in two phases:
+- builiding
+- pruning for avoiding overfitting
+
+A decision tree is built by recursive splitting input sets in nodes until:
+- input data includes only objects belonging to one class
+- the number of objects in an input set is small enough
+ 
+
+
+
 
 
 
