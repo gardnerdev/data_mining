@@ -1,0 +1,9 @@
+```
+For each attribute
+    For each value of the attribute, make rules as follows:
+        count how often each class appears
+        find the most frequent class
+        make the rule assign that class to this attribute value
+    Calculate the error rate of the rules 
+Choose the rules with the smallest error rate 
+```
