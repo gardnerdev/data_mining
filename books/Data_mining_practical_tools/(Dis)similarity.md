@@ -25,10 +25,11 @@ dissmat(weathercl, function (x1, x2) mink.dist(x1, x2, 3))
 ```
 
 ###  Manhattan distance 
+```
 man.dist <- function(x1, x2) { mink.dist(x1, x2, 1) }
   ##### Manhattan distance dissimilarity matrix for the weathercl data
 dissmat(weathercl, function (x1, x2) man.dist(x1, x2))
-
+```
 
 ### R code implements the Hamming distance and applies it to the weathercl data
 
@@ -47,3 +48,21 @@ dissmat(weathercl, cheb.dist)
   # roughly the same as
 dissmat(weathercl, function (x1, x2) mink.dist(x1, x2, 10))
 ```
+
+#### The R code presented below performs the standardization of continuous attributes in the weathercl data using the std.all and predict.std functions and then generates the Euclidean distance dissimilarity matrix based on the standardized dataset.
+```
+weathercl.std <- predict.std(std.all(.c11-math-0067., weathercl), weathercl)
+dissmat(weathercl.std, euc.dist)
+```
+
+### Cosine similarity
+```
+cos.sim <- function(x1, x2) { cosine(discode(c11-math-0088., x1), discode(c11-math-0089., x2)) }
+  # cosine similarity matrix for the weathercl data
+dissmat(weathercl, cos.sim)
+```
+
+#### Missing attribute values
+* Omit. Skip attributes with missing values for one or both instances in dissimilarity calculation (and possibly scale up the obtained dissimilarity accordingly, if using a difference-based measure),
+* Impute. Fill-in missing attribute values in a data preprocessing phase using some imputation techniques,
+* Process internally. Use some internal techniques to estimate the contribution of attributes with missing values to the calculated dissimilarity measure.
