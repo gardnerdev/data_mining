@@ -49,18 +49,34 @@ install.packages("readxl",repos = "http://cran.us.r-project.org")
 library(XLConnect) 
 library(readxl) 
 library(caret)
+library(tidyverse)
+
 
 wk = loadWorkbook("CTG.xls") 
 data = readWorksheet(wk, sheet="Raw Data")
 #Dataset <- read.xlsx("CTG.xls",sheetName="Raw Data")
+names(data)
 
 # First 3 columns are unnecessary: filenames and date
 data = data[,-1:-3]
-print(data)
+names(data)
 
 # Last 2 columns shoould be dropped acording to task (NSP and Class)
 data = data[1:(length(data)-2)]
-print(data)
+names(data)
+
+
+# According to dataset documentation, columns
+# for clustering - last 10:
+
+install.packages("tidyverse",dependencies=TRUE)
+data %>% select(1:3)
+
+names(x)
+
+data=data(length(data))
+
+
 
 
 # k-means algorithm for 10 groups with
@@ -90,7 +106,6 @@ print(original_data_types) # already ok
 
 raw_data <- data.frame(data)
 
-names(data)
 
 
 ?kmeans
