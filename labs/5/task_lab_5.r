@@ -108,7 +108,7 @@ avg_sil <- function(k) {
 #alternative execution of kmeans
 wine.kmeans_alt<-eclust(data, "kmeans", k=6, graph=FALSE)
 fviz_silhouette(wine.kmeans_alt, palette="jco")
-fviz_silhouette(wine.kmeans, palette="jco")
+fviz_silhouette(wine.kmeans, palette="jco") #?
 
 
 silinfo<-wine.kmeans_alt$silinfo
@@ -125,14 +125,31 @@ silinfo$avg.width
 # Average silhoutte lenght is 0.3138577 for data without preprocessing etc.
 
 
+?scale
+#### data scaling
+wine.Scale <- scale(wine, center = FALSE)
+str(wine.Scale)
+
+wine.kmeansS = kmeans(wine.Scale, 6, iter.max = 20)
+str(wine.kmeansS)
+
+#after scaling
+table(wine$quality,wine.kmeansS$cluster)
+#before
+table(wine$quality,wine.kmeans$cluster)
 
 
 
+#alternative execution of kmeans
+wine.kmeansS_alt<-eclust(wine.Scale, "kmeans", k=6, graph=FALSE)
+fviz_silhouette(wine.kmeansS_alt, palette="jco")
+fviz_silhouette(wine.kmeans, palette="jco")
 
+#worse
 
-
-
-
+###############################################################
+# finding the optimal number of groups with the "elbow" method
+###############################################################
 
 
 
