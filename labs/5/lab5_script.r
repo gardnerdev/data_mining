@@ -4,6 +4,10 @@
 
 #setting working directory - adjust a path to your directory with a dataset
 
+install.packages("fpc")
+
+
+
 library(dbscan)
 library(fpc)
 library(cluster)
@@ -28,6 +32,7 @@ print(iris2.kmeans$centers)
 
 #compare clusters with original class labels
 table(iris$Species,iris2.kmeans$cluster)
+
 
 #plot clusters
 plot(iris2[,1:2], col = iris2.kmeans$cluster)
@@ -64,6 +69,7 @@ silinfo$avg.width
 species <- as.numeric(iris$Species)
 clust_stats<-cluster.stats(d=dist(iris2), species, km_alt$cluster)
 clust_stats$corrected.rand
+
 
 
 #### data scaling
@@ -127,6 +133,7 @@ fviz_cluster(pam.res,
              repel = TRUE, # avoid overlapping (slows down)
              ggtheme = theme_light() #background color
 )
+
 
 
 #### hierarchical clustering
@@ -199,6 +206,7 @@ table(iris$Species, iris2.dbscan$cluster)
 iris2.dbscan <- dbscan(iris2, eps=0.4, MinPts=5)
 table(iris$Species, iris2.dbscan$cluster)
 
+
 # plot clusters
 plot(iris2.dbscan, iris2)
 plot(iris2.dbscan, iris2[c(1,4)])
@@ -242,3 +250,7 @@ card.kmeans = kmeans(wineRed_dsC,6)
 res3 = table(wineRed_ds$quality,card.kmeans$cluster )
 res3
 accuracyCalc(res3,1)
+
+
+
+
