@@ -1,45 +1,5 @@
-#The CTGs were also classified by three expert 
-#obstetricians and a consensus classification 
-#label assigned to each of them. Classification 
-#was both with respect to a morphologic pattern 
-#(A, B, C. ...) and to a fetal state (N, S, P). 
-#Therefore the dataset can be used either for 10-class 
-#or 3-class experiments.
-
-
-#Attribute Information:
-
-#LB - FHR baseline (beats per minute)
-#AC - # of accelerations per second
-#FM - # of fetal movements per second
-#UC - # of uterine contractions per second
-#DL - # of light decelerations per second
-#DS - # of severe decelerations per second
-#DP - # of prolongued decelerations per second
-#ASTV - percentage of time with abnormal short term variability
-#MSTV - mean value of short term variability
-#ALTV - percentage of time with abnormal long term variability
-#MLTV - mean value of long term variability
-#Width - width of FHR histogram
-#Min - minimum of FHR histogram
-#Max - Maximum of FHR histogram
-#Nmax - # of histogram peaks
-#Nzeros - # of histogram zeros
-#Mode - histogram mode
-#Mean - histogram mean
-#Median - histogram median
-#Variance - histogram variance
-#Tendency - histogram tendency
-#CLASS - FHR pattern class code (1 to 10)
-#NSP - fetal state class code (N=normal; S=suspect; P=pathologic)
-
 setwd("~/Desktop/Projects/data_mining/labs/5")
 
-#install.packages("XLConnect",dependencies=TRUE)
-#install.packages("readxl",dependencies=TRUE)
-#install.packages("readxl",repos = "http://cran.us.r-project.org")
-#install.packages("caret")
-#install.packages("tidyverse",repos = "http://cran.us.r-project.org")
 
 library(XLConnect) 
 library(readxl) 
@@ -49,85 +9,106 @@ library(dbscan)
 library(fpc)
 library(cluster)
 library(factoextra)
+library(dplyr)
+
+
+install.packages("car")
+install.packages("tidyverse")
+install.packages("factoextra")
+install.packages("dply")
+
+R.Version()
 
 
 
+wine <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header=TRUE, sep=';')
+summary(wine)
+head(wine)
+names(wine)
+str(wine)
+table(wine$quality)
 
-wk = loadWorkbook("CTG.xls") 
-data = readWorksheet(wk, sheet="Raw Data")
-#Dataset <- read.xlsx("CTG.xls",sheetName="Raw Data")
-
-names(data)
-
-# First 3 columns are unnecessary: filenames and date
-data = data[,-1:-3]
-names(data)
-
-# Last 2 columns shoould be dropped acording to task (NSP and Class)
-data = data[1:(length(data)-2)]
-names(data)
-
-
-# According to dataset documentation, columns
-# for clustering - last 10:
-
-#install.packages("tidyverse",dependencies=TRUE)
-
-data %>% select(26:35) -> new_dataset
-
-print(new_dataset)
-
-names(new_dataset)
-
-
-# k-means algorithm for 10 groups with
-# default values of parameters and without
-# preprocessing of data
-
-
-#kmeans cannot handle data that 
-#has NA values
 
 # How many observations in the column are NA 
-na_columns_rate = sapply(new_dataset, FUN = function(x) sum(is.na(x))/length(x))
-
+na_columns_rate = sapply(wine, FUN = function(x) sum(is.na(x))/length(x))
+print(na_columns_rate)
+#no NA columns
 # Remove almost fully NA columns
-new_dataset = new_dataset[,na_columns_rate < 0.9]
-new_dataset
-
-# Remove NA rows. There are 3 of them
-new_dataset = new_dataset[complete.cases(new_dataset),]
-
+#new_dataset = wine[,na_columns_rate < 0.9]
+#new_dataset
 
 # Make all the columns numeric
-original_data_types = sapply(new_dataset, typeof)
-
-
+original_data_types = sapply(wine, typeof)
 print(original_data_types) # already ok
-#data <- data.frame(lapply(data, FUN = function(x) as.numeric(sub(",", ".", x, fixed = TRUE))))
-
-raw_data <- data.frame(new_dataset)
 
 
 
+
+# Last column shoould be dropped acording to task description (quality)
+wine %>% select(1:11) -> data
+
+names(data)
+
+# we define a seed for purposes of reprodutability
+set.seed(123)
 ?kmeans
-data.kmeans=kmeans(raw_data,10)
-
-
+wine.cluster<-kmeans(data, centers = 6, nstart = 20) 
 #getting information about clustering
-print(data.kmeans)
+print(wine.cluster)
+print(wine.cluster$kmeans)
+print(wine.cluster$iter)
+print(wine.cluster$centers)
 
-print(data.kmeans$iter)
 
-print(data.kmeans$centers)
+#It is a good idea to plot the cluster results. These can be used to assess the choice of the number
+#of clusters as well as comparing two different cluster analyses.
+#Now, we want to visualize the data in a scatter plot with coloring 
+#each data point according to its cluster assignment.
+#The problem is that the data contains more than 2 variables and 
+#the question is what variables to choose for the xy scatter plot
 
 
-#compare clusters with original class labels
-table(data$SUSP,data.kmeans$cluster)
 
-#plot clusters
-plot(data[,1:2], col = data.kmeans$cluster)
 
-#plot all combinations
-plot(data[,1:15], col = data.kmeans$cluster)
+
+#' Plots a chart showing the sum of squares within a group for each execution of the kmeans algorithm. 
+#' In each execution the number of the initial groups increases by one up to the maximum number of centers passed as argument.
+#'
+#' @param data The dataframe to perform the kmeans 
+#' @param nc The maximum number of initial centers
+#'
+wssplot <- function(data, nc=15, seed=123){
+  wss <- (nrow(data)-1)*sum(apply(data,2,var))
+  for (i in 2:nc){
+  1    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers=i)$withinss)}
+  plot(1:nc, wss, type="b", xlab="Number of groups",
+       ylab="Sum of squares within a group")}
+wssplot(data, nc = 20)
+
+
+
+#Plotting the result of K-means clustering can be difficult because of the high dimensional nature of the data. 
+#To overcome this, the plot.kmeans function in useful performs 
+#multidimensional scaling to project the data into two dimensions and then color codes the points according to cluster membership
+#install.packages("useful",repos = "http://cran.us.r-project.org")
+library(useful)
+
+
+plot(data, data=wine)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
