@@ -12,12 +12,12 @@ library(factoextra)
 library(dplyr)
 
 
-install.packages("car")
-install.packages("tidyverse")
-install.packages("factoextra")
-install.packages("dply")
+#install.packages("car")
+#install.packages("tidyverse")
+#install.packages("factoextra")
+#install.packages("dply")
 
-R.Version()
+#R.Version()
 
 
 
@@ -43,7 +43,6 @@ print(original_data_types) # already ok
 
 
 
-
 # Last column shoould be dropped acording to task description (quality)
 wine %>% select(1:11) -> data
 
@@ -52,39 +51,15 @@ names(data)
 # we define a seed for purposes of reprodutability
 set.seed(123)
 ?kmeans
-wine.cluster<-kmeans(data, centers = 6, nstart = 20) 
+wine.kmeans<-kmeans(data, centers = 6, nstart = 20) 
 #getting information about clustering
-print(wine.cluster)
-print(wine.cluster$kmeans)
-print(wine.cluster$iter)
-print(wine.cluster$centers)
+print(wine.kmeans)
+print(wine.kmeans$iter)
+print(wine.kmeans$centers)
 
+#compare clusters with original class labels
+table(wine$quality,wine.kmeans$cluster)
 
-#It is a good idea to plot the cluster results. These can be used to assess the choice of the number
-#of clusters as well as comparing two different cluster analyses.
-#Now, we want to visualize the data in a scatter plot with coloring 
-#each data point according to its cluster assignment.
-#The problem is that the data contains more than 2 variables and 
-#the question is what variables to choose for the xy scatter plot
-
-
-
-
-
-#' Plots a chart showing the sum of squares within a group for each execution of the kmeans algorithm. 
-#' In each execution the number of the initial groups increases by one up to the maximum number of centers passed as argument.
-#'
-#' @param data The dataframe to perform the kmeans 
-#' @param nc The maximum number of initial centers
-#'
-wssplot <- function(data, nc=15, seed=123){
-  wss <- (nrow(data)-1)*sum(apply(data,2,var))
-  for (i in 2:nc){
-  1    set.seed(seed)
-    wss[i] <- sum(kmeans(data, centers=i)$withinss)}
-  plot(1:nc, wss, type="b", xlab="Number of groups",
-       ylab="Sum of squares within a group")}
-wssplot(data, nc = 20)
 
 
 
@@ -92,10 +67,62 @@ wssplot(data, nc = 20)
 #To overcome this, the plot.kmeans function in useful performs 
 #multidimensional scaling to project the data into two dimensions and then color codes the points according to cluster membership
 #install.packages("useful",repos = "http://cran.us.r-project.org")
-library(useful)
-
-
+#library(useful)
 plot(data, data=wine)
+
+
+distance <- get_dist(data)
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+#If there are more than two dimensions (variables) fviz_cluster will perform principal
+#component analysis (PCA) and plot the data points according to the first two principal 
+#components that explain the majority of the variance.
+fviz_cluster(wine.kmeans, data = data)
+
+
+# Average Silhouette Method
+# function to compute average silhouette for k clusters
+avg_sil <- function(k) {
+  km.res <- kmeans(df, centers = k, nstart = 25)
+  ss <- silhouette(km.res$cluster, dist(df))
+  mean(ss[, 3])
+}
+
+
+#In short, the average silhouette approach measures the quality of a clustering. 
+#That is, it determines how well each object lies within its cluster. 
+#A high average silhouette width indicates a good clustering. 
+#The average silhouette method computes the average silhouette of observations for different values of k. 
+#The optimal number of clusters k is the one that maximizes the average silhouette over a range of possible values for k.
+
+# function to compute average silhouette for k clusters
+avg_sil <- function(k) {
+  km.res <- kmeans(df, centers = k, nstart = 25)
+  ss <- silhouette(km.res$cluster, dist(df))
+  mean(ss[, 3])
+}
+
+
+
+
+#alternative execution of kmeans
+wine.kmeans_alt<-eclust(data, "kmeans", k=6, graph=FALSE)
+fviz_silhouette(wine.kmeans_alt, palette="jco")
+fviz_silhouette(wine.kmeans, palette="jco")
+
+
+silinfo<-wine.kmeans_alt$silinfo
+names(silinfo)
+
+
+#silhouette length for each observation
+head(silinfo$widths[,1:3],10)
+#silhouette length for each cluster
+silinfo$clus.avg.widths
+#average silhouette length
+silinfo$avg.width
+
+# Average silhoutte lenght is 0.3138577 for data without preprocessing etc.
 
 
 
