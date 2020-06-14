@@ -7,17 +7,27 @@
 #setting working directory - adjust a path to your directory with a dataset
 
 #setwd('/home/staff/gprotazi/edami2020l');
+setwd('~/Desktop/Projects/data_mining/labs/4')
+
+#install.packages("arules")
+#install.packages("arulesSequences")
+
 library(arules)
 library(arulesSequences)
 
+
 #read data with sequences - tags assigned by users to items
-download.file('http://staff.ii.pw.edu.pl/~gprotazi/dydaktyka/dane/tags.data','tags.data')
+download.file('http://staff.ii.pw.edu.pl/~gprotazi/dydaktyka/dane/tags.data', 'tags.data')
+
+
 ?read_baskets
 dataSeq <- read_baskets(con = file("tags.data", "r"), info = c("sequenceID","eventID","SIZE"))
 
 #summary
 summary(dataSeq)
 str(dataSeq)
+
+
 
 #presenting data in data.frame form
 frameS =   as(dataSeq,"data.frame")

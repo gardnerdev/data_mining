@@ -93,24 +93,13 @@ summary(diabSeq)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #setting parameters
 #time(eventid) in the diab_trans.data set is given as a number of seconds from some date.
 #the following values of parameters are the example of values which allow obtaining any sequential rules.
 
 seqParam = new ("SPparameter",support = 0.5, maxsize = 4, mingap=600, maxgap =172800, maxlen = 3 )
 patSeq= cspade(diabSeq,seqParam, control = list(verbose = TRUE, tidLists = FALSE, summary= TRUE))
+
 
 #discovery of sequential rules
 seqRules = ruleInduction(patSeq,confidence = 0.8)
@@ -119,6 +108,159 @@ length(seqRules)
 #summary for the set of rules
 summary(seqRules)
 #view of of rules
-inspect(head(seqRules,100))
+inspect(head(seqRules,5))
+
+View(as(diabSeq,"data.frame"))
 
 
+
+#information about data concerning times 
+?timeFrequency
+timeSeq  = as(diabSeq,"timedsequences")
+freqT = timeFrequency(timeSeq, "times")
+freqT
+
+spanT= timeFrequency(timeSeq, "span")
+spanT
+
+
+
+#calculation of frequency of items
+?itemFrequency
+freqItem = itemFrequency(diabSeq)
+#str(freqItem)
+
+freqItem = sort(freqItem, decreasing = TRUE )
+head(freqItem,5)
+str(diabSeq)
+
+diabSeq
+
+#transaction for in a given sequence
+trans5 <- diabSeq[diabSeq@itemsetInfo$sequenceID == 5]
+inspect(trans5)
+
+#frequent sequences discovery
+#parameters of Spade algorithm
+?'SPparameter-class'
+seqParam = new ("SPparameter",support = 0.003, maxsize = 5, mingap=1, maxgap = 3, maxlen = 5)
+print(seqParam)
+
+#execution of the algorithm
+?cspade
+patSeq= cspade(diabSeq,seqParam, control = list(verbose = TRUE, tidLists = FALSE, summary= TRUE))
+
+#information about discoverd sequences
+summary(patSeq)
+#length(patSeq)
+
+inspect(head(patSeq,66))
+#patterns with more than one element
+seq2elem <- patSeq[size(patSeq)>1]
+length(seq2elem)
+inspect(seq2elem)
+
+
+
+#patters supported by a given sequence of transactions(without time constraints))
+inspect(patSeq[which(support(patSeq,trans5,type='absolute') >0)])
+
+#searching for patterns with given items
+?subset
+?match
+
+
+
+#execution the algorithm with different parameters
+seqParam1 = new ("SPparameter",support = 0.001, maxsize = 5, mingap=1, maxgap = 3, maxlen = 5)
+patSeq1= cspade(diabSeq,seqParam1, control = list(verbose = TRUE, tidLists = TRUE, summary= TRUE))
+
+#selecting new discovered sequences
+
+seqdiff = patSeq1[which(!(patSeq1 %in% patSeq))]
+
+length(patSeq1)
+length(seqdiff)
+
+#discovery sequential rules
+?ruleInduction
+seqRules = ruleInduction(patSeq1,confidence = 0.8)
+
+length(seqRules)
+#summary of set of rules
+summary(seqRules)
+#view of rules and sequneces
+inspect(seqRules)
+
+
+
+
+?arulesSequences::size
+
+size(lhs(seqRules))
+size(lhs(seqRules), 'length')
+size(lhs(seqRules), 'itemsets')
+size(lhs(seqRules), 'items')
+
+
+#sequences in the left part of rules
+inspect(lhs(seqRules))
+#sequences in the right part of rules
+inspect(rhs(seqRules))
+
+
+#items in rules
+seqRules@elements@items@itemInfo
+
+#all patterns included in rules (from left and right parts of rules)
+allSeq <- c(rhs(seqRules),lhs(seqRules))
+allSeq <- unique(allSeq)
+inspect(allSeq)
+str(allSeq)
+
+
+
+#selecting interesting rules
+rulesI = subset(seqRules, rhs(seqRules) %in% c('design','webdesign'))
+inspect(rulesI)
+View(as(rulesI,"data.frame"))
+
+rulesI = subset(seqRules, lhs(seqRules) %ein% c('design','webdesign'))
+inspect(rulesI)
+
+rulesI = subset(seqRules, lhs(seqRules) %ein% c('design','webdesign') & rhs(seqRules) %in% c('webdesign'))
+inspect(rulesI)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+        
+
+
+        
