@@ -6,6 +6,14 @@
 #2. Classification with usage of  rpart library
 #3. Random forest
 
+#install.packages("gmodels")
+#install.packages("Hmisc")
+#install.packages("caret")
+#install.packages("rpart")
+#install.packages("e1071")
+#install.packages("C50")
+#install.packages("randomForest")
+install.packages("rpart.plot")
 
 
 library(gmodels) #results analysis
@@ -83,9 +91,11 @@ CrossTable(car_c50_testPred, carTest$category, prop.chisq = FALSE,prop.c = FALSE
 
 confusionMatrix(car_c50_testPred, carTest$category, mode="everything")
 
+
 #model building - rules
 car_C50R <- C5.0(carTrain[,-7], carTrain$category,  rules = TRUE) 
 summary(car_C50R)
+
 
 #quality of classification for test data
 car_c50_testPred <- predict(car_C50R, carTest)
@@ -93,6 +103,7 @@ CrossTable(car_c50_testPred, carTest$category, prop.chisq = FALSE,prop.c = FALSE
            prop.r = FALSE, dnn = c('predicted class', 'actual class'))
 
 confusionMatrix(car_c50_testPred, carTest$category, mode="everything")
+
 
 #Ensemble classifier (boosting)
 ?churn

@@ -1,5 +1,4 @@
-setwd("~/Desktop/Projects/data_mining/labs/5")
-
+setwd("~/Desktop/Projects/data_mining/labs/6")
 
 library(XLConnect) 
 library(readxl) 
@@ -11,7 +10,7 @@ library(cluster)
 library(factoextra)
 library(dplyr)
 
-
+#install.packages("XLConnect")
 #install.packages("car")
 #install.packages("tidyverse")
 #install.packages("factoextra")
@@ -29,385 +28,262 @@ str(wine_raw)
 table(wine_raw$quality)
 
 
-# How many observations in the column are NA 
-na_columns_rate = sapply(wine_raw, FUN = function(x) sum(is.na(x))/length(x))
-print(na_columns_rate)
-#no NA columns
-# Remove almost fully NA columns
-#new_dataset = wine[,na_columns_rate < 0.9]
-#new_dataset
+#wine_raw$Q2 = lapply(wine_raw[,12], function (x)
+#{
+#  if(x >6)  { "A"}
+#  else if(x >4)  {"B"}
+#  else { "C"}   
+#})
 
-# Make all the columns numeric
-original_data_types = sapply(wine_raw, typeof)
-print(original_data_types) # already ok
+#wine_raw$Q2 = unlist(wine_raw$Q2)
+#wine_raw$Q2 = as.factor(wine_raw$Q2)
 
 
+library(C50)
+library(gmodels)
+library(party)
+library(RColorBrewer)
+library(psych)
+library(rpart)
+library(rpart.plot)
 
-# Last column shoould be dropped acording to task description (quality)
-wine_raw %>% select(1:11) -> wine
 
-names(wine)
+################################################################
+# 2.  rpart - recursive partitioning trees                       #
+################################################################
 
-# we define a seed for purposes of reprodutability
-set.seed(123)
-?kmeans
-wine.kmeans<-kmeans(wine, centers = 6, nstart = 20) 
-#getting information about clustering
-print(wine.kmeans)
-print(wine.kmeans$iter)
-print(wine.kmeans$centers)
 
-#compare clusters with original class labels
-table(wine_raw$quality,wine.kmeans$cluster)
 
+str(wine_raw)
+summary(wine_raw)
+# historgram of the quality of wine
+hist(wine_raw$quality)
+set.seed(7777)
 
 
 
-#Plotting the result of K-means clustering can be difficult because of the high dimensional nature of the data. 
-#To overcome this, the plot.kmeans function in useful performs 
-#multidimensional scaling to project the data into two dimensions and then color codes the points according to cluster membership
-#install.packages("useful",repos = "http://cran.us.r-project.org")
-#library(useful)
-#plot(data, data=wine)
+#creating training and test datasets 
+sam <- sample(2, nrow(wine_raw), replace=TRUE, prob=c(0.7, 0.3))
+sam
+wine_train <- wine_raw[sam==1,]
+wine_test <- wine_raw[sam==2,]
 
 
-#distance <- get_dist(wine)
-# very costly computation
-#fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
 
-#If there are more than two dimensions (variables) fviz_cluster will perform principal
-#component analysis (PCA) and plot the data points according to the first two principal 
-#components that explain the majority of the variance.
-fviz_cluster(wine.kmeans, data = wine_raw)
+# creating wine train and test models
+# wine_train <- wine_raw[1:3750, ]
+# wine_test <- wine_raw[3751:4898, ]
 
 
-# Average Silhouette Method
-# function to compute average silhouette for k clusters
-avg_sil <- function(k) {
-  km.res <- kmeans(df, centers = k, nstart = 25)
-  ss <- silhouette(km.res$cluster, dist(df))
-  mean(ss[, 3])
-}
+wine_train
+wine_test
 
 
-#In short, the average silhouette approach measures the quality of a clustering. 
-#That is, it determines how well each object lies within its cluster. 
-#A high average silhouette width indicates a good clustering. 
-#The average silhouette method computes the average silhouette of observations for different values of k. 
-#The optimal number of clusters k is the one that maximizes the average silhouette over a range of possible values for k.
 
-# function to compute average silhouette for k clusters
-avg_sil <- function(k) {
-  km.res <- kmeans(df, centers = k, nstart = 25)
-  ss <- silhouette(km.res$cluster, dist(df))
-  mean(ss[, 3])
-}
+######################################################################################################################
 
+#class distribution in sets
+prop.table(table(wine_train$quality))
+prop.table(table(wine_test$quality))
 
+print("Wine train:")
+table(wine_train$quality)
+print("Wine test:")
+table(wine_test$quality)
 
 
-#alternative execution of kmeans
-wine.kmeans_alt<-eclust(wine, "kmeans", k=6, graph=FALSE)
-fviz_silhouette(wine.kmeans_alt, palette="jco")
 
 
-silinfo<-wine.kmeans_alt$silinfo
-names(silinfo)
+################################################################
+# 1.  C5.0 classifier                                         #
+################################################################
 
+?C5.0
+#model building - a decision tree
 
-#silhouette length for each observation
-head(silinfo$widths[,1:3],10)
-#silhouette length for each cluster
-silinfo$clus.avg.widths
-#average silhouette length
-silinfo$avg.width
+#Error: C5.0 models require a factor outcome
+wine_train$quality<-as.factor(wine_train$quality)
+wine_test$quality<-as.factor(wine_test$quality)
 
-# Average silhoutte lenght is 0.3138577 for data without preprocessing etc.
+wine_C50 <- C5.0(wine_train[1:11], wine_train$quality) 
+summary(wine_C50)
 
+#too long to render
+#plot(wine_C50)
 
-?scale
-#### data scaling
-wineScale <- scale(wine, center = FALSE)
-str(wineScale)
 
-wine.kmeansS = kmeans(wineScale, 6, iter.max = 20)
-str(wine.kmeansS)
 
-#after scaling
-table(wine_raw$quality,wine.kmeansS$cluster)
-#before
-table(wine_raw$quality,wine.kmeans$cluster)
+#quality of classification for training data
+wine_c50_trainPred <- predict(wine_C50, wine_train, type="class")
 
 
-#alternative execution of kmeans
-wine.kmeansS_alt<-eclust(wineScale, "kmeans", k=6, graph=FALSE)
+?CrossTable
+CrossTable(wine_c50_trainPred, wine_train$quality, prop.chisq = FALSE,prop.c = FALSE, 
+           prop.r = FALSE, dnn = c('predicted class', 'actual class'))
 
-silinfo<-wine.kmeansS_alt$silinfo
-names(silinfo)
 
+?confusionMatrix
+confusionMatrix(wine_c50_trainPred, wine_train$quality, mode="everything")
 
-#silhouette length for each observation
-head(silinfo$widths[,1:3],10)
-#silhouette length for each cluster
-silinfo$clus.avg.widths
-#average silhouette length
-silinfo$avg.width
 
 
-#after scaling
-fviz_silhouette(wine.kmeansS_alt, palette="jco")
-#before scaling
-fviz_silhouette(wine.kmeans_alt, palette="jco")
-#worse 0.18 to  0.31
+#quality of classification for test data
+wine_c50_testPred <- predict(wine_C50, wine_test)
+CrossTable(wine_c50_testPred, wine_test$quality, prop.chisq = FALSE,prop.c = FALSE, 
+           prop.r = FALSE, dnn = c('predicted class', 'actual class'))
 
 
+str(wine_test$quality)
+str(wine_c50_testPred)
 
+?confusionMatrix
 
-accuracyCalc <- function(confTbl, startCol)
-{
-  corr = 0;
-  for(i in startCol:ncol(confTbl))
-  {
-    corr = corr + max(confTbl[,i])  
-  }
-  accuracy = corr/sum(confTbl)
-  accuracy  
-}
+confusionMatrix(wine_c50_testPred, wine_test$quality, mode="everything")
 
+print(wine_c50_testPred)
+print(wine_test$quality)
 
-# Accuracy without scaling
-res3 = table(wine_raw$quality,wine.kmeans_alt$cluster)
-res3
-accuracyCalc(res3,1)
 
-# Accuracy with scaling
-res3 = table(wine_raw$quality,wine.kmeansS_alt$cluster)
-res3
-accuracyCalc(res3,1)
 
-#0.4583503 > 0.4505921
 
-###############################################################
-# finding the optimal number of groups with the "elbow" method
-###############################################################
+#model building - rules
+wine_C50R <- C5.0(wine_train[1:11], wine_train$quality,  rules = TRUE) 
+summary(wine_C50R)
 
 
-########### from laboratory ######################
 
-wss <- vector(mode = "integer" ,length = 10)
+#quality of classification for test data
+wine_c50_testPred <- predict(wine_C50R, wine_test)
+CrossTable(wine_c50_testPred, wine_test$quality, prop.chisq = FALSE,prop.c = FALSE, 
+           prop.r = FALSE, dnn = c('predicted class', 'actual class'))
 
 
-#  1 to 10 clusters
-for (i in 1:10) {
-  kmeans.group <- kmeans(wine, centers = i, nstart=20)
-  # total within-cluster sum of squares
-  wss[i] <- kmeans.group$tot.withinss
-}
+#wine_train$quality<-as.factor(wine_train$quality)
+#wine_test$quality<-as.factor(wine_test$quality)
 
-# total within-cluster sum of squares per number of groups
-plot(1:10, wss, type = "b", 
-     xlab = "number of groups", 
-     ylab = "total within-cluster sum of squares")
 
+confusionMatrix(wine_c50_testPred, wine_test$quality, mode="everything")
 
-########## from data mining book ###################
 
 
-#Fortunately, this process to compute the 
-#“Elbow method” has been wrapped up in a single function (fviz_nbclust):
-set.seed(123)
+#quality of classification for test data
+wine_c50_testPred <- predict(wine_C50R, wine_test)
+CrossTable(wine_c50_testPred, wine_test$quality, prop.chisq = FALSE,prop.c = FALSE, 
+           prop.r = FALSE, dnn = c('predicted class', 'actual class'))
 
-fviz_nbclust(wine, kmeans, method = "wss")
+confusionMatrix(wine_c50_testPred, wine_test$quality, mode="everything")
 
 
-#Average Silhouette Method
-#In short, the average silhouette approach measures the quality of a clustering. 
-#That is, it determines how well each object lies within its cluster. A high average silhouette width indicates a good clustering.
-#The average silhouette method computes the average silhouette of observations for different values of k
 
-fviz_nbclust(wine, kmeans, method = "silhouette")
 
-# BEST NUMBER OF CLUSTERS -> 4
+################################################################
+#RandomForest                                                  #
+################################################################
+?randomForest
 
-# for scaling data -> 4 too
-fviz_nbclust(wineScale, kmeans, method = "silhouette")
+wine_Forest = randomForest(quality~., data = wine_train, importance = TRUE, nodesize = 10, mtry = 4, ntree = 100 )
+#nodesize = minimal number of objects in a node
+#mtry - the number of randomly selected attributes for searching the best test split in nodes
+#ntree -  number of trees in a forest
+#importance - calculation of attriubte importance
 
-############# TEST FOR K = 2 ##########################
-#alternative execution of kmeans
-wine.kmeans2_alt<-eclust(wine, "kmeans", k=2, graph=FALSE)
+print(wine_Forest)
+plot(wine_Forest)
 
-fviz_silhouette(wine.kmeans2_alt, palette="jco")
 
-res2 = table(wine_raw$quality,wine.kmeans2_alt$cluster)
-res2
-accuracyCalc(res2,1)
+?importance
+round(importance(wine_Forest, type = 1),2)
 
-### accuracy -> 0.4487546 
+wine_Forest_testPred = predict (wine_Forest, newdata = wine_test[1:11])
+confusionMatrix(wine_Forest_testPred, wine_test$quality, mode = "everything")
 
+#looking for the best values of parameters by means of K-fold validation
+?trainControl
+trControl <- trainControl(method = "cv", number = 10, search = "grid")
 
-############# TEST FOR K = 4 ##########################
-#alternative execution of kmeans
-wine.kmeans4_alt<-eclust(wine, "kmeans", k=4, graph=FALSE)
 
-fviz_silhouette(wine.kmeans4_alt, palette="jco")
 
-res4 = table(wine_raw$quality,wine.kmeans4_alt$cluster)
-res4
-accuracyCalc(res4,1)
 
-### accuracy -> 0.4510004
 
 
 
-############# TEST FOR K = 6 ##########################
-#alternative execution of kmeans
-wine.kmeans6_alt<-eclust(wine, "kmeans", k=6, graph=FALSE)
 
-fviz_silhouette(wine.kmeans6_alt, palette="jco")
 
-res6 = table(wine_raw$quality,wine.kmeans6_alt$cluster)
-res6
-accuracyCalc(res6,1)
 
-### accuracy -> 0.4583503
 
 
 
 
-wine <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header=TRUE, sep=';')
 
-#### changing nstart parameter to 50
-k6 <- kmeans(wine, centers = 6, nstart = 50)
 
-res6_50 = table(wine_raw$quality,k6$cluster)
-accuracyCalc(res6_50,1)
 
-### accuracy -> 0.4577379
 
-####################################
-# PAM - partitioning around medoids#
-####################################
 
 
-# deciding on the optimal number of clusters
-fviz_nbclust(wine, pam, method = "silhouette")+theme_classic()
 
-# division into 2 clusters
-pam.res <- pam(wine, 2)
-print(pam.res)
 
-#adding information on cluster assignment
-wine_clus<-cbind(wine, pam.res$cluster)
-head(wine_clus)
 
 
+# tree building
+#setting the class attribute
+#The rpart() will be used to specify quality as the outcome variable and use
+#the dot notation to allow all the other columns in the wine_train data frame to be used in predictors
+m.rpart <- rpart(quality ~ ., data = wine_train)
+m.rpart
 
-#cluster centers
-print(pam.res$medoids)
 
-#cluster assignment
-pam.res$clustering
+rpart.plot(m.rpart, digits = 3)
 
-#clustering visualization
-fviz_cluster(pam.res,
-             palette = c("#00AFBB", "#FC4E07"), # color palette
-             ellipse.type = "t", # ellipse of concentration
-             repel = TRUE, # avoid overlapping (slows down)
-             ggtheme = theme_light() #background color
-)
 
+#decision tree visualization
+rpart.plot(m.rpart, digits = 3)
 
-wine_raw <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header=TRUE, sep=';')
-wine_raw %>% select(1:11) -> wine_raw
-#df <- na.omit(df_raw)
-#df <- na.omit(df)
-#df <- scale(df)
-#head(df)
 
-#alternative execution of kmeans
-#df.kmeans6_alt<-eclust(df, "kmeans", k=6, graph=FALSE)
-#fviz_silhouette(df.kmeans6_alt, palette="jco")
 
-#res6 = table(wine_raw$quality,df.kmeans6_alt$cluster)
-#res6
-#accuracyCalc(res6,1)
+#fallen.leaves() addition to the decision tree
+#This addition will show visualizations with the dissemination of
+#regression tree results, as they are readily understood even without 
+#a mathematics background. The lead nodes are predicted values for the examples reaching that node.
+rpart.plot(m.rpart, digits = 4, fallen.leaves = TRUE, type = 3, extra = 101)
 
 
-##### dbscan algorithm ##########################
 
-?dbscan
-dbscan::kNNdistplot(wine_raw, k=6)
-abline(h=13, lty="dashed")
+#test data prediction
+#now it's time to test data, using predict() function. It will return the estimated numeric value 
+#for the outcome variable
+p.rpart <- predict(m.rpart, wine_test)
+summary(p.rpart)
 
-#alg execution
-wine.dbscan <- dbscan(wine_raw, eps=13, MinPts=5)
+summary(wine_train$quality)
+summary(wine_test$quality)
 
-#compare clusters with original class labels
-#cluster 0 means noise
-table(wine_raw$quality, wine.dbscan$cluster)
+#CORELATION
+#We can now check the correlation between the predicted and actual
+#quality values provides a simple way to gauge the model’s performance
+#This correlation only measures how strong the predictions are related 
+#to the true value. This is not a measure of how far off the predictions were from the true values
 
 
-wine.dbscan <- dbscan(wine, eps=0.4, MinPts=5)
-table(wine_raw$quality, wine.dbscan$cluster)
+cor(p.rpart, wine_test$quality)
+#0.4819914
 
 
-# plot clusters
-plot(wine.dbscan, wine_raw)
-plot(wine.dbscan, wine_raw[c(1,2)])
+#MEAN ABSOLUTE ERROR
+#Let’s turn the tables and thinking of another way we could improve 
+#the model’s performance. We could consider how far, on average, its prediction was from the true value
+MAE <- function(actual, predicted) { mean(abs(actual - predicted))}
+MAE(p.rpart, wine_test$quality)
+#0.5956675
 
 
-res_dbscan = table(wine_raw$quality,wine.dbscan$cluster)
-res_dbscan
-accuracyCalc(res_dbscan,1)
 
+mean(wine_train$quality)
+#output 5.875145
+MAE(5.88, wine_test$quality)
+#output 0.6546314
 
-
-#######################################################################3
-wine_raw <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv", header=TRUE, sep=';')
-wine_raw %>% select(1:11) -> wine
-
-cor(wine)
-print(cor(wine))
-
-
-wine_scale <- scale(wine[-1])
-wine_scale
-
-head(wine_scale,3)
-
-library(cluster)
-library(factoextra)
-
-# determination the optimal number of clusters
-fviz_nbclust(wine_scale,kmeans,method= 'wss',) + geom_vline(xintercept=3,linetype=5,col='darkred')
-
-# extracting results
-k.means <- kmeans(wine_scale, 3, nstart=20)
-k.means
-
-# Centroids
-k.means$size
-
-#visualization
-clusplot(wine_scale, k.means$cluster, main='2D representation of the Cluster', color=TRUE, shade=TRUE, labels=,lines=0)
-
-
-fviz_cluster(object=k.means, #kmeans object
-            data=wine_scale, # data used for clustering
-            ellipse.type="norm",
-            geom="point",
-            palette="jco",
-            main="",
-            ggtheme= theme_minimal())
-
-
-
-res_dbscan = table(wine_raw$quality,k.means$cluster)
-res_dbscan
-accuracyCalc(res_dbscan,1)
-
-# accuracy 0.455492
-
+#The above shows room improvement. As one can see, MAE shows 0.57, 
+#which comes closer to the average to the true quality score than the imputed mean, MAE 0.5741115
 
 
 
