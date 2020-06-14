@@ -13,7 +13,7 @@
 #install.packages("e1071")
 #install.packages("C50")
 #install.packages("randomForest")
-install.packages("rpart.plot")
+#install.packages("rpart.plot")
 
 
 library(gmodels) #results analysis
@@ -247,6 +247,8 @@ car_Forest = randomForest(category~., data = carTrain, importance = TRUE, nodesi
 
 print(car_Forest)
 plot(car_Forest)
+
+
 
 ?importance
 round(importance(car_Forest, type = 1),2)
